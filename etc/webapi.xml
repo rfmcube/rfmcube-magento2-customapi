@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../app/code/Magento/Webapi/etc/webapi.xsd">
+    <route url="/V1/detailedcustomers/:customerId" method="GET">
+          <service class="Rfmcube\Customapi\Api\CustomerServiceEnhancer" method="getById"/>
+          <resources>
+              <resource ref="admin"/>
+          </resources>
+      </route>
+      <route url="/V1/detailedcustomers/search" method="GET">
+        <service class="Rfmcube\Customapi\Api\CustomerServiceEnhancer" method="getList"/>
+        <resources>
+            <resource ref="admin"/>
+        </resources>
+      </route>
+</routes>
