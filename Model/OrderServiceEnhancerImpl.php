@@ -1,4 +1,5 @@
 <?php
+
 namespace Rfmcube\Customapi\Model;
 
 use Rfmcube\Customapi\Api\OrderServiceEnhancer;
@@ -6,38 +7,35 @@ use Magento\Sales\Model\OrderRepository;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Psr\Log\LoggerInterface;
 
-class OrderServiceEnhancerImpl implements OrderServiceEnhancer
-{
-        protected $orderRepository;
+class OrderServiceEnhancerImpl implements OrderServiceEnhancer {
 
-        protected $logger;
+    protected $orderRepository;
+    protected $logger;
 
     public function __construct(
-      OrderRepository $orderRepository,
-      LoggerInterface $logger
+            OrderRepository $orderRepository,
+            LoggerInterface $logger
     ) {
-          $this->orderRepository = $orderRepository;
-          $this->logger = $logger;
+        $this->orderRepository = $orderRepository;
+        $this->logger = $logger;
     }
 
     /**
-    * {@inheritdoc}
-    */
-    public function get($id)
-    {
-      $this->logger->info("resource order get id=" . $id);
+     * {@inheritdoc}
+     */
+    public function get($id) {
+        $this->logger->info("resource order get id=" . $id);
 
-      return $this->orderRepository->get($id);
+        return $this->orderRepository->get($id);
     }
 
     /**
-   * {@inheritdoc}
-   */
-  public function getList(SearchCriteriaInterface $searchCriteria)
-  {
-      $this->logger->info("resource order getList searchCriteria=" . json_encode(get_object_vars($searchCriteria)));
+     * {@inheritdoc}
+     */
+    public function getList(SearchCriteriaInterface $searchCriteria) {
+        $this->logger->info("resource order getList searchCriteria=" . json_encode(get_object_vars($searchCriteria)));
 
-      return $this->orderRepository->getList($searchCriteria);
-  }
+        return $this->orderRepository->getList($searchCriteria);
+    }
 
 }
