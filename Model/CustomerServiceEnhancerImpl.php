@@ -24,7 +24,7 @@ class CustomerServiceEnhancerImpl implements CustomerServiceEnhancer {
      * {@inheritdoc}
      */
     public function getById($customerId) {
-        $this->logger->info("resource customer getByid id=" . $customerId);
+//        $this->logger->info("resource customer getByid id=" . $customerId);
 
         return $this->customerRepository->getById($customerId);
     }
@@ -33,9 +33,17 @@ class CustomerServiceEnhancerImpl implements CustomerServiceEnhancer {
      * {@inheritdoc}
      */
     public function getList(SearchCriteriaInterface $searchCriteria) {
-        $this->logger->info("resource customer getList searchCriteria=" . json_encode(get_object_vars($searchCriteria)));
+//        $this->logger->info("resource customer getList searchCriteria=" . json_encode(get_object_vars($searchCriteria)));
+        $searchResults = $this->customerRepository->getList($searchCriteria);
 
-        return $this->customerRepository->getList($searchCriteria);
+        $customers = [];
+        /** @var \Magento\Customer\Model\Customer $customerModel */
+        foreach ($searchResults->getItems() as $customerModel) {
+            $this->logger->info("get again the full customer id=" . $customerModel->getId());
+            $customers[] = $this->getById($customerModel->getId());
+        }
+        $searchResults->setItems($customers);
+        return $searchResults;
     }
 
 }
