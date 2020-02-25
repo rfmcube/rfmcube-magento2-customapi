@@ -23,26 +23,6 @@ class OrderWrapper {
     }
 
     /**
-     * Gets items for the order.
-     *
-     * @return \Rfmcube\Customapi\Data\OrderItemWrapper[] Array of items.
-     */
-    public function getItems() {
-        return $this->items;
-    }
-
-    /**
-     * Sets items for the order.
-     *
-     * @param \Magento\Sales\Api\Data\OrderItemInterface[] $items
-     * @return $this
-     */
-    public function setItems($items) {
-        $this->items = $items;
-        return $this;
-    }
-
-    /**
      * Gets the negative adjustment value for the order.
      *
      * @return float|null Negative adjustment value.
@@ -1251,6 +1231,26 @@ class OrderWrapper {
      */
     public function getXForwardedFor() {
         return $this->order->getXForwardedFor();
+    }
+
+    /**
+     * Gets items for the order.
+     *
+     * @return \Rfmcube\Customapi\Data\OrderItemWrapper[] Array of items.
+     */
+    public function getItems() {
+        return $this->items;
+    }
+
+    /**
+     * Sets items for the order.
+     *
+     * @param \Magento\Sales\Api\Data\OrderItemInterface[] $items
+     * @return $this
+     */
+    public function setItems($items) {
+        $this->items = $items;
+        return $this;
     }
 
     /**
