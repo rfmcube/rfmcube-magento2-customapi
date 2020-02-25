@@ -3,23 +3,26 @@
 
 There are 2 different solutions to install Rfmcube extensions:
 
-- Solution #1. Install via Composer (Recommend)
-- Solution #2: Ready to paste (Not recommend)
+- Solution #1. Install via Composer
+- Solution #2: Ready to paste
 
 ## Important:
 - We recommend you to duplicate your live store on a staging/test site and try installation on it in advanced.
 - Back up Magento files and the store database.
 
-## Solution #1. Install via Composer (Recommend)
+## Solution #1. Install via Composer
 
+Not yet published
+<!---
 Run the following command in Magento 2 root folder:
 
 ```
 composer require rfmcube/customapi
 php bin/magento setup:upgrade
 ```
+-->
 
-## Solution #2: Ready to paste (Not recommend)
+## Solution #2: Ready to paste
 
 If you don't want to install via composer, you can use this way. 
 
