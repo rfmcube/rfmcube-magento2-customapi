@@ -4,19 +4,27 @@ namespace Rfmcube\Customapi\Model;
 
 use Rfmcube\Customapi\Api\OrderServiceEnhancer;
 use Magento\Sales\Model\OrderRepository;
+use Magento\Catalog\Model\CategoryRepository;
+use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Psr\Log\LoggerInterface;
 
 class OrderServiceEnhancerImpl implements OrderServiceEnhancer {
 
     protected $orderRepository;
+    protected $productRepository;
+    protected $categoryRepository;
     protected $logger;
 
     public function __construct(
             OrderRepository $orderRepository,
+            ProductRepository $productRepository,
+            CategoryRepository $categoryRepository,
             LoggerInterface $logger
     ) {
         $this->orderRepository = $orderRepository;
+        $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
         $this->logger = $logger;
     }
 
@@ -26,75 +34,67 @@ class OrderServiceEnhancerImpl implements OrderServiceEnhancer {
     public function get($id) {
         $this->logger->info("resource order get id=" . $id);
 
-
-//        print_r($map);
-//        $strJson = json_encode($map);
-//
-//        $this->logger->info("resource order get id=" . $strJson);
-//        return json_decode($strJson); //$this->orderRepository->get($id);
-//        $order = $this->orderRepository->get($id);
-//        return [[
-//        "map" => $map,
-//        "res" => $res
-//        ]];
-//        $oof = new \Rfmcube\Customapi\Data\CustomOrder();
-//        $oof2 = new \Rfmcube\Customapi\Data\CategoryInfo();
-//        $oof2->setTree(array(1, 2, 3, 4, 5));
-        $item1 = array(
-            'productid' => 12,
-            'categoryid' => 2
-        );
-        $item2 = array(
-            'productid' => 12,
-            'categoryid' => 2
-        );
-
-//        $finalMap = array(
-//            'id' => 12,
-//            'name' => "sdasd",
-//            'items' => [$item1, $item2]
-//        );
-
         $order = $this->orderRepository->get($id);
 
-//        $reflectionClass = new \ReflectionClass(\Magento\Sales\Api\Data\OrderInterface::class);
-//
-//        $finalMap = $order->toArray($reflectionClass->getConstants());
-//
-//        $address = $order->getBillingAddress();
-//        if ($address !== null) {
-//            $finalMap['billing_address'] = $address->toArray();
-//        }
-//
-//        $payment = $order->getPayment();
-//        if ($payment !== null) {
-//            $finalMap['payment'] = $payment->toArray();
-//        }
-//
-//        $statusHistories = $order->getStatusHistories();
-//        $finalMap['status_histories'] = [];
-//        if ($statusHistories !== null) {
-//            foreach ($statusHistories as $sh) {
-//                $finalMap['status_histories'][] = $sh->toArray();
-//            }
-//        }
-//
-//        $extensionAttributes = $order->getExtensionAttributes();
-//        $finalMap['extension_attributes'] = [];
-//        if ($extensionAttributes !== null) {
-//            $finalMap['extension_attributes']=$extensionAttributes;
-////            foreach ($extensionAttributes as $ea) {
-////                $finalMap['extension_attributes'][$ea] = $extensionAttributes[$ea]->toArray();
-////            }
-//        }
+        $wrapped = new \Rfmcube\Customapi\Data\OrderWrapper($order);
+
+        $items = [];
+        foreach ($order->getItems() as $it) {
+            $item = new \Rfmcube\Customapi\Data\OrderItemWrapper($it);
+
+            $product = $this->productRepository->getById($item->getProductId());
 
 
-//        $str = json_encode($order, JSON_FORCE_OBJECT);
-//        echo $str;
-//        $output = json_decode($str, true);
-//        echo $output;
+            $attributes = [];
+            foreach ($product->getAttributes() as $attr) {
+                $value = $product->getData($attr->getAttributeCode());
+                $attributes[] = new \Rfmcube\Customapi\Data\Attribute($attr->getAttributeCode(), $value);
+            }
+            $item->setAttributes($attributes);
 
-        return new \Rfmcube\Customapi\Data\OrderWrapper($order);
+            $categoryIds = $product->getCategoryIds();
+
+            $categoriesInfo = [];
+            foreach ($categoryIds as $categoryId) {
+                $category = $this->categoryRepository->get($categoryId);
+                $this->logger->info("category id=" . $categoryId . " name=" . $category->getName());
+                $categoryInfo = new \Rfmcube\Customapi\Data\CategoryInfo();
+                $categoryInfo->setId($category->getId());
+                $categoryInfo->setParentId($category->getParentId());
+                $categoryInfo->setName($category->getName());
+                $categoryInfo->setTree($this->buildTree($category));
+                $categoriesInfo[] = $categoryInfo;
+            }
+            $item->setCategories($categoriesInfo);
+
+            $items[] = $item;
+        }
+        $wrapped->setItems($items);
+
+        return $wrapped;
+    }
+
+    /**
+     * Build the category tree of the category
+     *
+     * @param \Magento\Catalog\Api\Data\CategoryInterface $category
+     * @return array
+     */
+    private function buildTree($category) {
+        $tree = [];
+        $this->_walkParent($tree, $category);
+        $tree = array_reverse($tree);
+//        $this->logger->info("category tree " . implode(",", $tree));
+        return $tree;
+    }
+
+    private function _walkParent(& $tree, $category) {
+        $tree[] = $category->getId();
+        $parentId = $category->getParentId();
+        if (isset($parentId) && $parentId > 0) {
+            $parentCategory = $this->categoryRepository->get($parentId);
+            $this->_walkParent($tree, $parentCategory);
+        }
     }
 
     /**

@@ -10,11 +10,36 @@ class OrderWrapper {
     protected $order;
 
     /**
+     * @var \Rfmcube\Customapi\Data\OrderItemWrapper[]
+     */
+    protected $items;
+
+    /**
      * @param \Magento\Sales\Model\Order $order
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     function __construct(\Magento\Sales\Model\Order $order) {
         $this->order = $order;
+    }
+
+    /**
+     * Gets items for the order.
+     *
+     * @return \Rfmcube\Customapi\Data\OrderItemWrapper[] Array of items.
+     */
+    public function getItems() {
+        return $this->items;
+    }
+
+    /**
+     * Sets items for the order.
+     *
+     * @param \Magento\Sales\Api\Data\OrderItemInterface[] $items
+     * @return $this
+     */
+    public function setItems($items) {
+        $this->items = $items;
+        return $this;
     }
 
     /**
@@ -1226,19 +1251,6 @@ class OrderWrapper {
      */
     public function getXForwardedFor() {
         return $this->order->getXForwardedFor();
-    }
-
-    /**
-     * Gets items for the order.
-     *
-     * @return \Rfmcube\Customapi\Data\OrderItemWrapper[] Array of items.
-     */
-    public function getItems() {
-        $items = [];
-        foreach ($this->order->getItems() as $item) {
-            $items[] = new OrderItemWrapper($item);
-        }
-        return $items;
     }
 
     /**

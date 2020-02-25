@@ -10,11 +10,57 @@ class OrderItemWrapper {
     protected $item;
 
     /**
+     * @var \Rfmcube\Customapi\Data\CategoryInfo[]
+     */
+    protected $categories;
+
+    /**
+     * @var \Rfmcube\Customapi\Data\Attribute[]
+     */
+    protected $attributes;
+
+    /**
      * @param \Magento\Sales\Model\Order\Item $item
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     function __construct(\Magento\Sales\Model\Order\Item $item) {
         $this->item = $item;
+    }
+
+    /**
+     *
+     * @return \Rfmcube\Customapi\Data\CategoryInfo[]
+     */
+    public function getCategories() {
+        return $this->categories;
+    }
+
+    /**
+     *
+     * @param \Rfmcube\Customapi\Data\CategoryInfo[] $categories
+     * @return $this
+     */
+    public function setCategories($categories) {
+        $this->categories = $categories;
+        return $this;
+    }
+
+    /**
+     *
+     * @return \Rfmcube\Customapi\Data\Attribute[]
+     */
+    public function getAttributes() {
+        return $this->attributes;
+    }
+
+    /**
+     *
+     * @param \Rfmcube\Customapi\Data\Attribute[] $attributes
+     * @return $this
+     */
+    public function setAttributes($attributes) {
+        $this->attributes = $attributes;
+        return $this;
     }
 
     /**
