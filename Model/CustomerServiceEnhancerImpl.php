@@ -39,7 +39,7 @@ class CustomerServiceEnhancerImpl implements CustomerServiceEnhancer {
         $customers = [];
         /** @var \Magento\Customer\Model\Customer $customerModel */
         foreach ($searchResults->getItems() as $customerModel) {
-            $this->logger->info("get again the full customer id=" . $customerModel->getId());
+//            $this->logger->info("get again the full customer id=" . $customerModel->getId());
             $customers[] = $this->getById($customerModel->getId());
         }
         $searchResults->setItems($customers);
