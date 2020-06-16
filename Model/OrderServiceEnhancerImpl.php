@@ -55,7 +55,7 @@ class OrderServiceEnhancerImpl implements OrderServiceEnhancer {
      * {@inheritdoc}
      */
     public function get($id) {
-//        $this->logger->info("resource order get id=" . $id);
+//      $this->logger->info("resource order get id=" . $id);
 
         $order = $this->orderRepository->get($id);
 
@@ -65,32 +65,43 @@ class OrderServiceEnhancerImpl implements OrderServiceEnhancer {
         foreach ($order->getItems() as $it) {
             $item = new \Rfmcube\Customapi\Data\OrderItemWrapper($it);
 
-            $product = $this->productRepository->getById($item->getProductId());
+            try {
+//              $this->logger->info("get product id=" .$item->getProductId());
+                $product = $this->productRepository->getById($item->getProductId());
+//              $this->logger->info("found product " .$item->getProductId());
 
+                $attributes = [];
+                foreach ($product->getAttributes() as $attr) {
+                    $value = $product->getData($attr->getAttributeCode());
+                    $attributes[] = new \Rfmcube\Customapi\Data\Attribute($attr->getAttributeCode(), $value);
+                }
+                $item->setAttributes($attributes);
 
-            $attributes = [];
-            foreach ($product->getAttributes() as $attr) {
-                $value = $product->getData($attr->getAttributeCode());
-                $attributes[] = new \Rfmcube\Customapi\Data\Attribute($attr->getAttributeCode(), $value);
-            }
-            $item->setAttributes($attributes);
+                $categoryIds = $product->getCategoryIds();
 
-            $categoryIds = $product->getCategoryIds();
-
-            $categoriesInfo = [];
-            foreach ($categoryIds as $categoryId) {
-                $category = $this->categoryRepository->get($categoryId);
+                $categoriesInfo = [];
+                foreach ($categoryIds as $categoryId) {
+                    try {
+                        $category = $this->categoryRepository->get($categoryId);
 //                $this->logger->info("category id=" . $categoryId . " name=" . $category->getName());
-                $categoryInfo = new \Rfmcube\Customapi\Data\CategoryInfo();
-                $categoryInfo->setId($category->getId());
-                $categoryInfo->setParentId($category->getParentId());
-                $categoryInfo->setName($category->getName());
-                $categoryInfo->setTree($this->buildTree($category));
-                $categoriesInfo[] = $categoryInfo;
+                        $categoryInfo = new \Rfmcube\Customapi\Data\CategoryInfo();
+                        $categoryInfo->setId($category->getId());
+                        $categoryInfo->setParentId($category->getParentId());
+                        $categoryInfo->setName($category->getName());
+                        $categoryInfo->setTree($this->buildTree($category));
+                        $categoriesInfo[] = $categoryInfo;
+                        
+                    } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+//                        $this->logger->info("Caught exception: " . $e->getMessage());
+                    }
+                }
+                $item->setCategories($categoriesInfo);
+                
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+//                $this->logger->info("Caught exception: " . $e->getMessage());
+            } finally {
+                $items[] = $item;
             }
-            $item->setCategories($categoriesInfo);
-
-            $items[] = $item;
         }
         $wrapped->setItems($items);
 
