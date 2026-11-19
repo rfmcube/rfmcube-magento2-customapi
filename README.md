@@ -1,6 +1,9 @@
 
 # How to install Rfmcube Custom API for Magento 2
 
+> **⚠️ This module is no longer required.**
+> Rfmcube now connects to your store without this extension: you don't need to install it on your store. This repository is kept for reference only and is no longer maintained.
+
 There are 2 different solutions to install Rfmcube extensions:
 
 - Solution #1. Install via Composer
